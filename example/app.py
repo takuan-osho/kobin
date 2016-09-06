@@ -1,22 +1,19 @@
-from kobin import Kobin, request, response, template
+from kobin import Kobin, config, Response, TemplateResponse
 
-app = Kobin()
-app.config.load_from_pyfile('config.py')
-
-
-@app.route('^/$')
-def index():
-    response.add_header("hoge", "fuga")
-    return template('hello_jinja2', name='Kobin')
+app = Kobin(__name__)
+config.load_from_pyfile('config.py')
 
 
-@app.route('^/user/(?P<name>\w+)$')
-def hello(name: str):
-    return """
-    <p>Hello {}</p>
-    <p>Request Path: {}</p>
-    <p>Response Headers: {}</p>
-    """.format(name, request.path, str(response.headerlist))
+@app.route('/')
+def index(request):
+    return TemplateResponse('hello_jinja2', name='Kobin')
+
+
+@app.route('/user/{user_id}/')
+def hello(user_id: int):
+    return Response('Foo')
 
 if __name__ == '__main__':
-    app.run()
+    from wsgiref.simple_server import make_server
+    httpd = make_server('', 8000, app)
+    httpd.serve_forever()
