@@ -60,6 +60,39 @@ The following packages are optional:
 - gunicorn
 
 
+Topics
+======
+
+Static files
+------------
+
+If you want a function for serving static files, you want to use `wsgi-static-middleware <https://pypi.python.org/pypi/wsgi-static-middleware>`_ .
+
+.. code-block:: python
+
+   import os
+   from kobin import Kobin
+
+   BASE_DIR = os.path.dirname(__name__)
+   STATIC_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+   app = Kobin()
+
+
+   @app.route(
+   def app(env, start_response):
+       start_response('200 OK', [('Conte-type', 'text/plain; charset=utf-8')])
+       return [b'Hello World']
+
+
+   if __name__ == '__main__':
+       from wsgiref.simple_server import make_server
+       from wsgi_static_middleware import StaticMiddleware
+       app = StaticMiddleware(app, static_root='static', static_dirs=STATIC_DIRS)
+       httpd = make_server('', 8000, app)
+       httpd.serve_forever()
+
+
 Resources
 =========
 

@@ -23,15 +23,14 @@ Creating web site
 
 .. code-block:: python
 
-    from kobin import Kobin, request, response, template
+    from kobin import Kobin, Response, TemplateResponse, config
 
-    app = Kobin()
-    app.config.load_from_pyfile('config.py')
+    app = Kobin(__name__)
+    config.load_from_pyfile('config.py')
 
-    @app.route('^/$')
+    @app.route('/')
     def index():
-        response.add_header('key', 'value')
-        return template('index')
+        return TemplateResponse('index.html')
 
     if __name__ == '__main__':
         app.run()

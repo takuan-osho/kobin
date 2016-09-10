@@ -54,16 +54,22 @@ The following packages are optional:
 - gunicorn
 
 
-Kobin documentation contents
-============================
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
 
    tutorial
    devguide
-   api
 
+API Guide
+=========
+
+This documentations is generated from kobin's source code.
+
+.. automodule:: kobin
+   :members:
 
 Links
 =====
