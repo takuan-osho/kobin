@@ -152,7 +152,6 @@ class Request:
 class Response:
     __slots__ = ('_body', '_status_code', 'headers', 'charset', '_cookies',)
     default_content_type = 'text/plain; charset=UTF-8'
-    _status_code = None
 
     def __init__(self, body: Union[str, bytes]='',
                  status: int=200, headers=None, charset='utf-8') -> None:
@@ -246,11 +245,18 @@ class TemplateResponse(Response):
                          status=status, headers=headers, charset=charset)
 
 
+# HTTPError
+class HTTPError(Response, Exception):
+    default_status = 500
+
+    def __init__(self, status: int, body: str,
+                 exception: str=None, traceback: str=None, *args, **kwargs) -> None:
+        super().__init__(status=status or self.default_status, body=body, *args, **kwargs)
+        self.exception = exception
+        self.traceback = traceback
+
+
 # Router
-def http404(request) -> 'Response':
-    return Response(body='404 Not Found', status=404)
-
-
 def split_by_slash(path: str) -> List[str]:
     stripped_path = path.lstrip('/').rstrip('/')
     return stripped_path.split('/')
@@ -316,7 +322,7 @@ class Router:
             url_vars = route.match(method, path)
             if url_vars is not None:
                 return route.callback, url_vars
-        return http404, {}
+        raise HTTPError(status=404, body='404 Not Found')
 
     def add(self, method: str, rule: str, name: str,
             callback: Callable[..., 'Response']) -> None:
@@ -349,9 +355,14 @@ class Kobin:
         return decorator(callback) if callback else decorator
 
     def wsgi(self, env: Dict[str, Any], start_response) -> Iterable[bytes]:
-        callback, kwargs = self.router.match(env)
-        request = Request(env)
-        response = callback(request, **kwargs)
+        try:
+            callback, kwargs = self.router.match(env)
+            request = Request(env)
+            response = callback(request, **kwargs)
+        except HTTPError as error_response:
+            response = error_response
+        except:
+            response = Response(status=500, body='Internal Server Error')
         start_response(response.status, response.header_list)
         return [response.body]
 

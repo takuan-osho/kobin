@@ -7,7 +7,7 @@ BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(BASE_PATH, 'README.rst')).read()
 CHANGES = open(os.path.join(BASE_PATH, 'CHANGES.rst')).read()
 
-__version__ = '0.0.4'
+__version__ = '0.1.0'
 __author__ = 'Masashi Shibata <contact@c-bata.link>'
 __author_email__ = 'contact@c-bata.link'
 __license__ = 'MIT License'
@@ -56,7 +56,7 @@ setup(
     description='Kobin is a small and statically-typed web framework.',
     long_description=README + '\n\n' + CHANGES,
     classifiers=__classifiers__,
-    packages=find_packages(exclude=['test*']),
+    py_modules=['kobin'],
     keywords='web framework waf',
     license=__license__,
     include_package_data=True,
